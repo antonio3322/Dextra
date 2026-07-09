@@ -5,12 +5,12 @@
 using namespace std;
 
 void Dekstra_student(vector<vector<pair<int, int>>>& G, vector<int>& Len,
-    vector<int>& Parent, int start) {
+    vector<int>& Putty, int start) {
     int n = G.size() - 1;
 
     vector<int> Mark(n + 1, 0);
     Len = vector<int>(n + 1, 1e9);
-    Parent = vector<int>(n + 1, -1);
+    Putty = vector<int>(n + 1, -1);
     Len[start] = 0;
 
     for (int i = 0; i < n; i++) {
@@ -37,7 +37,7 @@ void Dekstra_student(vector<vector<pair<int, int>>>& G, vector<int>& Len,
             if (Mark[neighbor] == 0) {
                 if (Len[uk] + weight < Len[neighbor]) {
                     Len[neighbor] = Len[uk] + weight;
-                    Parent[neighbor] = uk;
+                    Putty[neighbor] = uk;
                 }
             }
         }
@@ -45,12 +45,12 @@ void Dekstra_student(vector<vector<pair<int, int>>>& G, vector<int>& Len,
 }
 
 void Dekstra_school(vector<vector<pair<int, int>>>& G, vector<int>& Len,
-    vector<int>& Parent, int start) {
+    vector<int>& Putty, int start) {
     int n = G.size() - 1;
 
     vector<int> Mark(n + 1, 0);
     Len = vector<int>(n + 1, 1e9);
-    Parent = vector<int>(n + 1, -1);
+    Putty = vector<int>(n + 1, -1);
     Len[start] = 0;
 
     for (int i = 0; i < n; i++) {
@@ -77,14 +77,14 @@ void Dekstra_school(vector<vector<pair<int, int>>>& G, vector<int>& Len,
             if (Mark[neighbor] == 0) {
                 if (Len[uk] + weight < Len[neighbor]) {
                     Len[neighbor] = Len[uk] + weight;
-                    Parent[neighbor] = uk;
+                    Putty[neighbor] = uk;
                 }
             }
         }
     }
 }
 
-bool compareResults(const vector<int>& Len1, const vector<int>& Len2) {
+bool Compare(const vector<int>& Len1, const vector<int>& Len2) {
     if (Len1.size() != Len2.size()) return false;
 
     for (int i = 1; i < Len1.size(); i++) {
@@ -95,27 +95,27 @@ bool compareResults(const vector<int>& Len1, const vector<int>& Len2) {
     return true;
 }
 
-void printPath(const vector<int>& Parent, int start, int finish) {
+void Print_Path(const vector<int>& Putty, int start, int finish) {
     vector<int> temp;
-    for (int v = finish; v != -1; v = Parent[v]) {
+    for (int v = finish; v != -1; v = Putty[v]) {
         temp.push_back(v);
         if (v == start) break;
     }
 
     if (temp.empty() || temp.back() != start) {
-        cout << "Путь не существует!" << endl;
+        cout << "Путьи не существует" << endl;
         return;
     }
 
     for (int i = temp.size() - 1; i >= 0; i--) {
         cout << temp[i];
-        if (i > 0) cout << " -> ";
+        if (i > 0) cout << " => ";
     }
     cout << endl;
 }
 
-void printDistances(const vector<int>& Len, const string& name) {
-    cout << name << ":\n";
+void Print_Distances(const vector<int>& Len, const string& name) {
+    cout << name << ":" << endl;
     for (int i = 1; i < Len.size(); i++) {
         cout << "  dist[" << i << "] = ";
         if (Len[i] == 1e9) {
@@ -131,7 +131,6 @@ int main() {
     setlocale(LC_ALL, "RU");
 
     int n, m;
-    cout << "Введите количество вершин и рёбер: ";
     cin >> n >> m;
 
     vector<vector<pair<int, int>>> G(n + 1);
@@ -145,7 +144,7 @@ int main() {
     }
 
     int start, finish;
-    cout << "Введите начальную и конечную вершины: ";
+    cout << "Введите начальную и конечную вершины ";
     cin >> start >> finish;
 
     vector<int> Len_opt, Parent_opt;
@@ -154,25 +153,25 @@ int main() {
     Dekstra_student(G, Len_opt, Parent_opt, start);
     Dekstra_school(G, Len_naive, Parent_naive, start);
 
-    if (compareResults(Len_opt, Len_naive)) {
+    if (Compare(Len_opt, Len_naive)) {
         cout << "Ответы совпадают" << endl;
     }
     else {
         cout << "Ответы не совпадают" << endl;
     }
 
-    cout << "Расстояние от вершины" << start << "\n";
-    printDistances(Len_opt, "Оптимизированная");
+    cout << "Расстояние от вершины" << start << endl;
+    Print_Distances(Len_opt, "Студенческая");
     cout << endl;
-    printDistances(Len_naive, "Наивная");
+    Print_Distances(Len_naive, "Школьная");
+    cout << endl;
+    cout << "Путь до вершины" << finish << endl;
 
-    cout << "\n Путь до вершины" << finish << "\n";
+    cout << "Студенческая: ";
+    Print_Path(Parent_opt, start, finish);
 
-    cout << "Оптимизированная: ";
-    printPath(Parent_opt, start, finish);
-
-    cout << "Наивная:";
-    printPath(Parent_naive, start, finish);
+    cout << "Школьная:";
+    Print_Path(Parent_naive, start, finish);
 
     return 0;
 }
